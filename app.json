@@ -17,15 +17,10 @@
       "backgroundColor": "#000000"
     },
     "ios": {
-      "bundleIdentifier": "gg.nfty.pygmy"
+      "bundleIdentifier": "io.pygmy.app"
     },
     "android": {
-      "package": "gg.nfty.pygmy"
-    },
-    "extra": {
-      "eas": {
-        "projectId": "c2623ce4-bbd2-4252-994e-9b3eb6a1518c"
-      }
+      "package": "io.pygmy.app"
     },
     "owner": "pygmy"
   }
