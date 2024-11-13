@@ -1,0 +1,32 @@
+{
+  "expo": {
+    "name": "Pygmy",
+    "slug": "pygmy",
+    "sdkVersion": "51.0.0",
+    "platforms": [
+      "ios",
+      "android"
+    ],
+    "plugins": [
+      "vxrn/expo-plugin"
+    ],
+    "icon": "./public/app-icon.png",
+    "splash": {
+      "image": "./public/splash.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#000000"
+    },
+    "ios": {
+      "bundleIdentifier": "gg.nfty.pygmy"
+    },
+    "android": {
+      "package": "gg.nfty.pygmy"
+    },
+    "extra": {
+      "eas": {
+        "projectId": "c2623ce4-bbd2-4252-994e-9b3eb6a1518c"
+      }
+    },
+    "owner": "pygmy"
+  }
+}
