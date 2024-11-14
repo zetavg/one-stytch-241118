@@ -1,4 +1,4 @@
-import { Tabs } from "one";
+import { Link, Tabs } from "one";
 import { View } from "tamagui";
 import { Logo } from "~/code/brand/Logo";
 import { NotificationsButton } from "~/code/notifications/NotificationsButton";
@@ -18,9 +18,12 @@ export default function TabsLayout() {
         ),
         tabBarLabel: () => null,
         headerLeft: () => (
-          <View px="$4">
-            <Logo />
-          </View>
+          <Link href="/wallets">
+            <View px="$4">
+              {/* TODO: Replace this with wallet selector */}
+              <Logo />
+            </View>
+          </Link>
         ),
         tabBarActiveTintColor: theme.color.val,
         tabBarInactiveTintColor: theme.gray9.val,
