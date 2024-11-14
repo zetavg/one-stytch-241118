@@ -1,7 +1,17 @@
-import { Bell, Home, User } from '@tamagui/lucide-icons'
+import {
+  Bell,
+  House,
+  User,
+  Search,
+  ArrowUpDown,
+  Clock,
+} from "@tamagui/lucide-icons";
 
 export const HomeIcons = {
-  Home,
+  Home: House,
+  Discover: Search,
+  Trade: ArrowUpDown,
+  Activity: Clock,
   Notifications: Bell,
-  User: User,
-}
+  User,
+};
