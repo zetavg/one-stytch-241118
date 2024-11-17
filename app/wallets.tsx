@@ -1,8 +1,7 @@
-import { Link, Stack, useLoader, type LoaderProps } from "one";
+import { Stack, useLoader, type LoaderProps } from "one";
 import { RefreshControl } from "react-native";
-import { ScrollView, View } from "tamagui";
+import { ScrollView } from "tamagui";
 import { PageContainer } from "~/code/ui/PageContainer";
-import { Settings } from "@tamagui/lucide-icons";
 
 export async function loader({ path }: LoaderProps) {
   // TODO: Fetch user activity

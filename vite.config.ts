@@ -6,6 +6,11 @@ export default {
   ssr: {
     noExternal: true,
   },
+  build: {
+    rollupOptions: {
+      external: ['expo-linear-gradient']
+    }
+  },
   plugins: [
     one({
       web: {

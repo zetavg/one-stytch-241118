@@ -1,6 +1,8 @@
 import { Stack, useLoader, type LoaderProps } from "one";
+import { useCallback } from "react";
 import { RefreshControl } from "react-native";
-import { ScrollView, View } from "tamagui";
+import { Button, ScrollView, View } from "tamagui";
+import { useSession } from "~/code/store/session";
 import { PageContainer } from "~/code/ui/PageContainer";
 
 export async function loader({ path }: LoaderProps) {
@@ -10,6 +12,7 @@ export async function loader({ path }: LoaderProps) {
 
 export function ProfilePage() {
   const {} = useLoader(loader);
+  const { signOut } = useSession();
 
   return (
     <>
@@ -20,9 +23,7 @@ export function ProfilePage() {
       />
 
       <PageContainer>
-        <ScrollView maxHeight="100%">
-          <RefreshControl refreshing={false} />
-        </ScrollView>
+        <Button onPress={signOut}>Logout</Button>
       </PageContainer>
     </>
   );
