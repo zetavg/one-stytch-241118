@@ -1,27 +1,27 @@
 import React from "react";
-import { useStorageState } from "./secureStorage";
-import { User } from "../types/user";
 import { useRouter } from "one";
+import { useStytchUser, User, useStytch } from "@stytch/react-native";
 
 const AuthContext = React.createContext<{
-  sendCode: ({ email }: { email: string }) => Promise<{ success: boolean }>;
-  loginWithCode: ({
+  sendCode: ({
     email,
-    code,
   }: {
     email: string;
+  }) => Promise<{ methodId: string; statusCode: number }>;
+  loginWithCode: ({
+    methodId,
+    code,
+  }: {
+    methodId: string;
     code: string;
-  }) => Promise<{ user: User | null; success: boolean; error?: string }>;
+  }) => Promise<{ user: User | null; success: boolean }>;
   signOut: () => void;
-  session?: string | null;
-  isLoading: boolean;
+  user?: User | null;
 }>({
-  sendCode: () => Promise.resolve({ success: false }),
-  loginWithCode: () =>
-    Promise.resolve({ user: null, success: false, error: "Unknown error" }),
+  sendCode: () => Promise.resolve({ methodId: "", statusCode: 0 }),
+  loginWithCode: () => Promise.resolve({ user: null, success: false }),
   signOut: () => null,
-  session: null,
-  isLoading: false,
+  user: null,
 });
 
 // This hook can be used to access the user info.
@@ -37,31 +37,53 @@ export function useSession() {
 }
 
 export function SessionProvider(props: React.PropsWithChildren) {
-  const [[isLoading, session], setSession] = useStorageState("session");
+  const stytch = useStytch();
+  const { user } = useStytchUser();
   const router = useRouter();
 
   return (
     <AuthContext.Provider
       value={{
         sendCode: async ({ email }) => {
-          // TOOD: Call API to send OTP code
-          await new Promise((resolve) => setTimeout(resolve, 2500));
-          return Promise.resolve({ success: true });
+          const { method_id, status_code } = await stytch.otps.email.send(
+            email,
+            {
+              expiration_minutes: 5,
+              // FIXME: Add email template here?
+            }
+          );
+
+          return {
+            statusCode: status_code,
+            methodId: method_id,
+          };
         },
-        loginWithCode: async ({ email, code }) => {
-          // TODO: Call API to verify OTP code
-          const fakeJWT =
-            "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjMxIiwiaWF0IjoxNTE2MjM5MDIyfQ.gx8qwZ5PGV_8DLVzHyqw4t1qA_3CgXz_xw9N8HE3c4A";
-          let user = { id: "1231" } satisfies User;
-          setSession(fakeJWT);
-          router.replace("/(tabs)");
-          return Promise.resolve({ user, success: true });
+        loginWithCode: async ({ methodId, code }) => {
+          const { status_code } = await stytch.otps.authenticate(
+            code,
+            methodId,
+            {
+              session_duration_minutes: 60 * 24 * 30,
+            }
+          );
+
+          if (status_code === 200) {
+            router.replace("/(tabs)");
+            return {
+              user,
+              success: true,
+            };
+          }
+
+          return {
+            user: null,
+            success: false,
+          };
         },
         signOut: () => {
-          setSession(null);
+          stytch.session.revoke();
         },
-        session,
-        isLoading,
+        user,
       }}
     >
       {props.children}

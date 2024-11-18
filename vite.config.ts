@@ -6,17 +6,19 @@ export default {
   ssr: {
     noExternal: true,
   },
-  build: {
-    rollupOptions: {
-      external: ['expo-linear-gradient']
-    }
-  },
   plugins: [
     one({
       web: {
         deploy: 'vercel',
         defaultRenderMode: 'ssg',
       },
+
+      // NOTE: Uncomment this to fix buildtime error
+      // deps: {
+      //   "@stytch/react-native": {
+      //     '**/*.js':['flow', 'jsx']
+      //   }
+      // },
 
       app: {
         key: 'pygmy',

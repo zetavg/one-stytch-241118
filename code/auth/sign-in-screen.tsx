@@ -1,48 +1,56 @@
 import { SubmitButton } from "~/code/ui/SubmitButton";
-import { LoadingOverlay } from "~/code/ui/LoadingOverlay";
 import { SchemaForm, formFields } from "~/code/ui/SchemaForm";
 import { FormProvider, useForm } from "react-hook-form";
 import { z } from "zod";
 import { YStack, Theme, Paragraph, H2 } from "tamagui";
-import { useRouter, useParams } from "one";
+import { useRouter } from "one";
 import { useSession } from "~/code/store/session";
-import { useState } from "react";
 
-const SignInSchema = z.object({
-  email: formFields.text.email().describe("Email // Enter your email"),
-  code: formFields.text
-    .optional()
-    .describe("Code // Enter the code you received"),
-});
+const SignInSchema = z
+  .object({
+    methodId: formFields.text.optional(),
+    email: formFields.text.email().describe("Email // Enter your email"),
+    code: formFields.text
+      .describe("Code // Enter the code you received")
+      .optional(),
+  })
+  .refine(
+    (data) => {
+      if (data.methodId && !data.code) {
+        return false;
+      }
+      return true;
+    },
+    {
+      message: "Code // Enter the code you received",
+      path: ["code"],
+    }
+  );
 
 export const SignInScreen = () => {
-  const [step, setStep] = useState<"sign-in" | "verify-code">("sign-in");
-  const { sendCode, loginWithCode, isLoading } = useSession();
+  const { sendCode, loginWithCode } = useSession();
   const router = useRouter();
-  const params = useParams<{ email?: string }>();
 
   const form = useForm<z.infer<typeof SignInSchema>>();
 
-  async function handleSubmit({ email, code }: z.infer<typeof SignInSchema>) {
-    console.log("handleSubmit", email, code);
-    if (step === "sign-in") {
-      const { success } = await sendCode({ email });
-      if (success) {
-        setStep("verify-code");
-        form.clearErrors("code");
+  async function handleSubmit({ methodId }: z.infer<typeof SignInSchema>) {
+    console.log("handleSubmit", methodId);
+    if (!methodId) {
+      const email = form.getValues("email");
+      const { methodId: newMethodId, statusCode } = await sendCode({ email });
+      if (statusCode === 200) {
+        form.setValue("methodId", newMethodId);
       }
-    } else if (step === "verify-code" && code) {
-      const { success, error } = await loginWithCode({ email, code });
+    } else {
+      const code = form.getValues("code");
+      if (!code) return;
+      const { success } = await loginWithCode({ methodId, code });
       if (success) {
         router.replace("/");
         return;
       }
 
-      if (error) {
-        form.setError("code", { type: "custom", message: error });
-      } else {
-        form.setError("code", { type: "custom", message: "Unable to login" });
-      }
+      form.setError("code", { type: "custom", message: "Unable to login" });
     }
   }
 
@@ -52,7 +60,8 @@ export const SignInScreen = () => {
         form={form}
         schema={SignInSchema}
         defaultValues={{
-          email: params?.email || "",
+          methodId: "",
+          email: "",
           code: "",
         }}
         onSubmit={handleSubmit}
@@ -73,18 +82,17 @@ export const SignInScreen = () => {
           );
         }}
       >
-        {({ code, email }) => (
+        {({ methodId, code, email }) => (
           <>
             <YStack gap="$3" mb="$4">
               <H2 $sm={{ size: "$8" }}>Welcome Back</H2>
               <Paragraph theme="alt1">Sign in to your account</Paragraph>
             </YStack>
-            {step === "sign-in" && email}
-            {step === "verify-code" && code}
+            {!methodId && email}
+            {methodId && code}
           </>
         )}
       </SchemaForm>
-      {isLoading && <LoadingOverlay />}
     </FormProvider>
   );
 };

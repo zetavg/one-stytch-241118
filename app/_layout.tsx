@@ -9,6 +9,9 @@ import { isWeb, TamaguiProvider } from "tamagui";
 import config from "../config/tamagui.config";
 import { SessionProvider } from "~/code/store/session";
 import { RootLayout } from "~/code/root/RootLayout";
+import { StytchProvider, StytchClient } from "@stytch/react-native";
+
+const stytch = new StytchClient(process.env.VITE_STYTCH_PUBLIC_TOKEN ?? "");
 
 export default function Layout() {
   return (
@@ -27,13 +30,15 @@ export default function Layout() {
 
       <LoadProgressBar />
 
-      <SessionProvider>
-        <SchemeProvider>
-          <TamaguiRootProvider>
-            <RootLayout />
-          </TamaguiRootProvider>
-        </SchemeProvider>
-      </SessionProvider>
+      <StytchProvider stytch={stytch}>
+        <SessionProvider>
+          <SchemeProvider>
+            <TamaguiRootProvider>
+              <RootLayout />
+            </TamaguiRootProvider>
+          </SchemeProvider>
+        </SessionProvider>
+      </StytchProvider>
     </>
   );
 }
